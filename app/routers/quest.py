@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Path  # Pathを追加
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas import QuestListResponse, QuestDetail, QuestApplyRequest, QuestApplyResponse
@@ -33,7 +33,10 @@ def get_in_progress_quests(db: Session = Depends(get_db)):
     }
 
 @router.get("/{quest_id}", response_model=QuestDetail)
-def get_quest(quest_id: int, db: Session = Depends(get_db)):
+def get_quest(
+    quest_id: int = Path(..., description="クエストID"),  # Path()を明示的に使用
+    db: Session = Depends(get_db)
+):
     """クエスト詳細"""
     quest = get_quest_detail(db, quest_id)
     if not quest:
