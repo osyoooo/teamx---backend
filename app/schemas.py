@@ -3,7 +3,7 @@ from typing import List, Optional
 from datetime import date
 
 class QuestListItem(BaseModel):
-    model_config = ConfigDict(from_attributes=True)  # 追加
+    model_config = ConfigDict(from_attributes=True)
     
     id: int
     title: str
@@ -12,7 +12,7 @@ class QuestListItem(BaseModel):
     difficulty_level: int
     provider_name: str
     duration_display: str
-    deadline: date
+    deadline: Optional[date] = None
     participants_display: str
     points_display: str
     match_rate: int
@@ -24,27 +24,27 @@ class QuestListItem(BaseModel):
     unlock_message: Optional[str] = None
 
 class QuestListResponse(BaseModel):
-    model_config = ConfigDict(from_attributes=True)  # 追加
+    model_config = ConfigDict(from_attributes=True)
     
     status: str
     quests: List[QuestListItem]
     total_count: int
 
 class Skill(BaseModel):
-    model_config = ConfigDict(from_attributes=True)  # 追加
+    model_config = ConfigDict(from_attributes=True)
     
     skill_name: str
     skill_type: str
     skill_level: str
 
 class Benefit(BaseModel):
-    model_config = ConfigDict(from_attributes=True)  # 追加
+    model_config = ConfigDict(from_attributes=True)
     
     benefit_name: str
     benefit_type: str
 
 class QuestDetail(BaseModel):
-    model_config = ConfigDict(from_attributes=True)  # 追加
+    model_config = ConfigDict(from_attributes=True)
     
     id: int
     title: str
@@ -53,11 +53,11 @@ class QuestDetail(BaseModel):
     difficulty_level: int
     provider_name: str
     duration_months: float
-    deadline: date
+    deadline: Optional[date] = None
     total_points: int
     match_rate: int
     prerequisite_score: int
-    prerequisite_text: Optional[str]
+    prerequisite_text: Optional[str] = None
     skills: List[Skill]
     benefits: List[Benefit]
     quest_type: str
