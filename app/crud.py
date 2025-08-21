@@ -76,12 +76,12 @@ def get_quest_detail(db: Session, quest_id: int):
         "description": quest.description or "",
         "difficulty_level": quest.difficulty_level or 1,
         "provider_name": quest.provider_name or "",
-        "duration_months": quest.duration_months or 0,
+        "duration_months": float(quest.duration_months) if quest.duration_months else 0,
         "deadline": quest.deadline,
         "total_points": quest.total_points or 0,
         "match_rate": quest.match_rate or 0,
         "prerequisite_score": quest.prerequisite_score or 0,
-        "prerequisite_text": quest.prerequisite_text,
+        "prerequisite_text": quest.prerequisite_text or "",  # この行が重要
         "quest_type": quest.quest_type or "quest",
         "skills": [{"skill_name": s.skill_name, "skill_type": s.skill_type, "skill_level": s.skill_level} for s in skills],
         "benefits": [{"benefit_name": b.benefit_name, "benefit_type": b.benefit_type} for b in benefits]
