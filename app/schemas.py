@@ -1,8 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from datetime import date
 
 class QuestListItem(BaseModel):
+    model_config = ConfigDict(from_attributes=True)  # 追加
+    
     id: int
     title: str
     objective: str
@@ -16,26 +18,34 @@ class QuestListItem(BaseModel):
     match_rate: int
     is_urgent: bool
     can_apply: bool
-    user_status: Optional[str]
+    user_status: Optional[str] = None
     quest_type: str
-    score_diff: Optional[int] = None 
+    score_diff: Optional[int] = None
     unlock_message: Optional[str] = None
-    
+
 class QuestListResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)  # 追加
+    
     status: str
     quests: List[QuestListItem]
     total_count: int
 
 class Skill(BaseModel):
+    model_config = ConfigDict(from_attributes=True)  # 追加
+    
     skill_name: str
     skill_type: str
     skill_level: str
 
 class Benefit(BaseModel):
+    model_config = ConfigDict(from_attributes=True)  # 追加
+    
     benefit_name: str
     benefit_type: str
 
 class QuestDetail(BaseModel):
+    model_config = ConfigDict(from_attributes=True)  # 追加
+    
     id: int
     title: str
     objective: str
