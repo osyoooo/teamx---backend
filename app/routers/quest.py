@@ -47,10 +47,16 @@ def get_upcoming_quests_endpoint(db: Session = Depends(get_db)):
 @router.get("/{quest_id}", response_model=QuestDetail)
 def get_quest(quest_id: int, db: Session = Depends(get_db)):
     """クエスト詳細"""
-    quest = get_quest_detail(db, quest_id)
-    if not quest:
-        raise HTTPException(status_code=404, detail="クエストが見つかりません")
-    return quest
+    try:
+        quest = get_quest_detail(db, quest_id)
+        if not quest:
+            raise HTTPException(status_code=404, detail="クエストが見つかりません")
+        return quest
+    except Exception as e:
+        print(f"Error getting quest {quest_id}: {str(e)}")
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/apply", response_model=QuestApplyResponse)
 def apply_to_quest(request: QuestApplyRequest, db: Session = Depends(get_db)):
