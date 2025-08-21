@@ -18,6 +18,8 @@ class QuestListItem(BaseModel):
     can_apply: bool
     user_status: Optional[str]
     quest_type: str
+    score_diff: Optional[int] = None 
+    unlock_message: Optional[str] = None
     
 class QuestListResponse(BaseModel):
     status: str
