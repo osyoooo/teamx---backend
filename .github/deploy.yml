@@ -1,0 +1,80 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  SERVICE_NAME: teamx-quest-api
+  REGION: asia-northeast1
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - id: 'auth'
+      name: 'Authenticate to Google Cloud'
+      uses: 'google-github-actions/auth@v1'
+      with:
+        credentials_json: '${{ secrets.GCP_SA_KEY }}'
+    
+    - name: 'Set up Cloud SDK'
+      uses: 'google-github-actions/setup-gcloud@v1'
+    
+    - name: 'Configure Docker to use gcloud as a credential helper'
+      run: |
+        gcloud auth configure-docker asia-northeast1-docker.pkg.dev
+    
+    - name: 'Build Docker image'
+      run: |
+        docker build -t asia-northeast1-docker.pkg.dev/$PROJECT_ID/teamx-repo/teamx-quest-api:$GITHUB_SHA .
+        docker tag asia-northeast1-docker.pkg.dev/$PROJECT_ID/teamx-repo/teamx-quest-api:$GITHUB_SHA \
+                   asia-northeast1-docker.pkg.dev/$PROJECT_ID/teamx-repo/teamx-quest-api:latest
+    
+    - name: 'Push Docker image'
+      run: |
+        docker push asia-northeast1-docker.pkg.dev/$PROJECT_ID/teamx-repo/teamx-quest-api:$GITHUB_SHA
+        docker push asia-northeast1-docker.pkg.dev/$PROJECT_ID/teamx-repo/teamx-quest-api:latest
+    
+    - name: 'Deploy to Cloud Run'
+      run: |
+        gcloud run deploy $SERVICE_NAME \
+          --image asia-northeast1-docker.pkg.dev/$PROJECT_ID/teamx-repo/teamx-quest-api:$GITHUB_SHA \
+          --platform managed \
+          --region $REGION \
+          --allow-unauthenticated \
+          --set-env-vars "ENVIRONMENT=production,DB_HOST=${{ secrets.DB_HOST }},DB_PORT=${{ secrets.DB_PORT }},DB_USER=${{ secrets.DB_USER }},DB_NAME=${{ secrets.DB_NAME }},DB_PASSWORD=${{ secrets.DB_PASSWORD }},API_PREFIX=/api/v1" \
+          --memory 512Mi \
+          --cpu 1 \
+          --max-instances 10 \
+          --min-instances 0
+    
+    - name: 'Get Cloud Run URL'
+      run: |
+        echo "Service URL: $(gcloud run services describe $SERVICE_NAME --region $REGION --format 'value(status.url)')"
