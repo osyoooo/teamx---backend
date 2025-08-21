@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Enum, DECIMAL, Date, TIMESTAMP, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, Text, Enum, DECIMAL, Date, TIMESTAMP, ForeignKey, Boolean, BigInteger
 from sqlalchemy.sql import func
 from app.database import Base
 
@@ -11,7 +11,7 @@ class Quest(Base):
     description = Column(Text)
     difficulty_level = Column(Integer)
     difficulty_name = Column(String(50))
-    provider_id = Column(Integer)
+    provider_id = Column(BigInteger)  # BigIntegerに修正
     provider_name = Column(String(255))
     duration_months = Column(DECIMAL(3, 1))
     deadline = Column(Date)
@@ -30,7 +30,7 @@ class UserQuest(Base):
     __tablename__ = "user_quests"
     
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer)
+    user_id = Column(BigInteger)  # BigIntegerに修正
     quest_id = Column(Integer)
     status = Column(String(50))
     progress_percentage = Column(Integer)
@@ -39,7 +39,7 @@ class UserQuest(Base):
 class User(Base):
     __tablename__ = "users"
     
-    id = Column(Integer, primary_key=True)
+    id = Column(BigInteger, primary_key=True)  # BigIntegerに修正
     display_name = Column(String(100))
     current_total_score = Column(Integer)
 
