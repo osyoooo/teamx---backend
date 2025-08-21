@@ -25,6 +25,7 @@ class Quest(Base):
     match_rate = Column(Integer)
     quest_type = Column(String(50))
     prerequisite_score = Column(Integer)
+    prerequisite_text = Column(Text)
 
 class UserQuest(Base):
     __tablename__ = "user_quests"
