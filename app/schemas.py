@@ -2,6 +2,19 @@ from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from datetime import date
 
+class Skill(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
+    skill_name: str
+    skill_type: str
+    skill_level: str
+
+class Benefit(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
+    benefit_name: str
+    benefit_type: str
+
 class QuestListItem(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     
@@ -22,6 +35,10 @@ class QuestListItem(BaseModel):
     quest_type: str
     score_diff: Optional[int] = None
     unlock_message: Optional[str] = None
+    prerequisite_text: Optional[str] = None
+    prerequisite_score: int = 0
+    skills: List[Skill] = []
+    benefits: List[Benefit] = []
 
 class QuestListResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -29,19 +46,6 @@ class QuestListResponse(BaseModel):
     status: str
     quests: List[QuestListItem]
     total_count: int
-
-class Skill(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    
-    skill_name: str
-    skill_type: str
-    skill_level: str
-
-class Benefit(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    
-    benefit_name: str
-    benefit_type: str
 
 class QuestDetail(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -65,6 +69,6 @@ class QuestDetail(BaseModel):
 class QuestApplyRequest(BaseModel):
     quest_id: int
 
-class QuestApplyResponse(BaseModel):
+class QuestApplyResponse(BaseModel:
     success: bool
     message: str
