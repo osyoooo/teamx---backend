@@ -69,6 +69,6 @@ class QuestDetail(BaseModel):
 class QuestApplyRequest(BaseModel):
     quest_id: int
 
-class QuestApplyResponse(BaseModel:
+class QuestApplyResponse(BaseModel):
     success: bool
     message: str
