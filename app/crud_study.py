@@ -34,8 +34,23 @@ def get_all_learning_contents(db: Session):
 def get_study_dashboard(db: Session, user_id: int):
     user = db.query(User).filter(User.id == user_id).first()
     current_score = user.current_total_score if user else 0
+    
+    # 次のゴールを計算（50点刻み）
     next_goal = ((current_score // 50) + 1) * 50
-    progress_percent = int(current_score / next_goal * 100) if next_goal else 0
+    
+    # 前のゴールを計算
+    previous_goal = (current_score // 50) * 50
+    
+    # 現在の区間での進捗率を計算（前のゴールから次のゴールまでの間での進捗）
+    if next_goal > previous_goal:
+        progress_in_current_segment = current_score - previous_goal
+        total_segment = next_goal - previous_goal
+        progress_percent = int((progress_in_current_segment / total_segment) * 100)
+    else:
+        progress_percent = 0
+    
+    # 次のゴールまでの残り%を計算
+    remaining_percent = 100 - progress_percent
 
     histories = (
         db.query(UserLearningHistory)
@@ -91,6 +106,8 @@ def get_study_dashboard(db: Session, user_id: int):
             "current_score": current_score,
             "next_goal_score": next_goal,
             "progress_percent": progress_percent,
+            "remaining_percent": remaining_percent,  # 追加
+            "remaining_text": f"次のゴールまであと{remaining_percent}%"  # 追加
         },
         "ongoing": ongoing,
         "recommended": recommended,
