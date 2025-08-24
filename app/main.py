@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
-from app.routers import quest
+from app.routers import quest, study  # ← add study
 
 app = FastAPI(title="TeamX API", version="1.0.0")
 
@@ -13,8 +13,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ルーターの登録
 app.include_router(quest.router, prefix=settings.API_PREFIX)
+app.include_router(study.router, prefix=settings.API_PREFIX)  # ← register study router
 
 @app.get("/")
 def root():
