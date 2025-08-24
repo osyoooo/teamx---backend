@@ -10,6 +10,7 @@ def get_all_learning_contents(db: Session):
     contents = (
         db.query(LearningContent)
           .join(LearningProvider, LearningContent.provider_id == LearningProvider.id)
+          .filter(LearningContent.status == "active")
           .all()
     )
     return [
@@ -18,7 +19,7 @@ def get_all_learning_contents(db: Session):
             "title": c.title,
             "description": c.description,
             "cover_image_url": c.cover_image_url,
-            "provider_name": c.provider.name,
+            "provider_name": c.provider.name if c.provider else None,
             "difficulty_level": c.difficulty_level,
             "duration_minutes": c.duration_minutes,
             "points_find": c.points_find,
@@ -38,42 +39,48 @@ def get_study_dashboard(db: Session, user_id: int):
 
     histories = (
         db.query(UserLearningHistory)
-          .join(LearningContent)
-          .join(LearningProvider)
+          .join(LearningContent, UserLearningHistory.content_id == LearningContent.id)
+          .join(LearningProvider, LearningContent.provider_id == LearningProvider.id)
           .filter(UserLearningHistory.user_id == user_id)
+          .filter(UserLearningHistory.content_id.isnot(None))
           .all()
     )
 
     ongoing = []
     history_content_ids = []
     for h in histories:
-        history_content_ids.append(h.content_id)
-        if h.status != "in_progress":
-            continue
-        earned = h.points_earned_find + h.points_earned_shape + h.points_earned_deliver
-        progress = int(earned / h.content.total_score * 100) if h.content.total_score else 0
-        ongoing.append({
-            "id": h.content.id,
-            "title": h.content.title,
-            "cover_image_url": h.content.cover_image_url,
-            "provider_name": h.content.provider.name,
-            "total_score": h.content.total_score,
-            "progress_percent": progress,
-        })
+        if h.content_id:
+            history_content_ids.append(h.content_id)
+        if h.status == "in_progress" and h.content:
+            earned = h.points_earned_find + h.points_earned_shape + h.points_earned_deliver
+            progress = int(earned / h.content.total_score * 100) if h.content.total_score else 0
+            ongoing.append({
+                "id": h.content.id,
+                "title": h.content.title,
+                "cover_image_url": h.content.cover_image_url,
+                "provider_name": h.content.provider.name if h.content.provider else None,
+                "total_score": h.content.total_score,
+                "progress_percent": progress,
+            })
 
-    rec_contents = (
+    # 履歴に含まれていないコンテンツを推奨として取得
+    rec_contents_query = (
         db.query(LearningContent)
-          .join(LearningProvider)
+          .join(LearningProvider, LearningContent.provider_id == LearningProvider.id)
           .filter(LearningContent.status == "active")
-          .filter(~LearningContent.id.in_(history_content_ids))
-          .all()
     )
+    
+    if history_content_ids:
+        rec_contents_query = rec_contents_query.filter(~LearningContent.id.in_(history_content_ids))
+    
+    rec_contents = rec_contents_query.all()
+    
     recommended = [
         {
             "id": c.id,
             "title": c.title,
             "cover_image_url": c.cover_image_url,
-            "provider_name": c.provider.name,
+            "provider_name": c.provider.name if c.provider else None,
             "total_score": c.total_score,
         }
         for c in rec_contents
