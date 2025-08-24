@@ -71,8 +71,8 @@ class LearningProvider(Base):
     name = Column(String(255), nullable=False)
     website_url = Column(String(255))
     provider_type = Column(
-        Enum("private", "public", "government", "other", name="provider_type_enum"),
-        default="private"
+        Enum("platform", "university", "company", "npo", "government", name="provider_type_enum"),
+        default="platform"
     )
 
 class LearningContent(Base):
