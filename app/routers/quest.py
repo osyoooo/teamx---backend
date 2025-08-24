@@ -7,17 +7,15 @@ from app.schemas import (
 )
 from app.crud import (
     get_quest_list, get_quest_detail, apply_quest, get_upcoming_quests,
-    get_quest_list_v2, get_upcoming_quests_v2
+    get_quest_list_v2, get_upcoming_quests_v2 as get_upcoming_quests_v2_crud
 )
 from app.models import User
 
 router = APIRouter(prefix="/quests", tags=["quests"])
 
-# 仮のユーザーID（実際は認証から取得）
 def get_current_user_id():
     return 1
 
-# 既存のエンドポイント
 @router.get("/available", response_model=QuestListResponse)
 def get_available_quests(db: Session = Depends(get_db)):
     """応募可能なクエスト一覧"""
@@ -101,7 +99,7 @@ def get_in_progress_quests_v2(db: Session = Depends(get_db)):
 def get_upcoming_quests_v2(db: Session = Depends(get_db)):
     """まもなく解放されるクエスト一覧 (v2)"""
     user_id = get_current_user_id()
-    quests = get_upcoming_quests_v2(db, user_id)
+    quests = get_upcoming_quests_v2_crud(db, user_id)
     return {
         "status": "upcoming",
         "quests": quests,
