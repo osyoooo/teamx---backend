@@ -303,8 +303,9 @@ def get_upcoming_quests_v2(db: Session, user_id: int):
     """まもなく解放されるクエスト一覧（改善版）"""
     user = db.query(User).filter(User.id == user_id).first()
     
+    # ユーザーが存在しない場合のデフォルト処理を追加
     if not user:
-        return []
+        user = User(id=user_id, current_total_score=0)
     
     # ユーザーのスコアより高い必要スコアのクエストを取得
     quests = db.query(Quest).filter(
