@@ -165,6 +165,8 @@ class GoalInfo(BaseModel):
     current_score: int
     next_goal_score: int
     progress_percent: int
+    remaining_percent: int  # 追加
+    remaining_text: str  # 追加
 
 class StudyDashboardResponse(BaseModel):
     goal: GoalInfo
