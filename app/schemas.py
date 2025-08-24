@@ -127,6 +127,16 @@ class QuestListResponseV2(BaseModel):
     total_count: int
 
 # ----- Study schemas -----
+
+# 新しく追加するクラス
+class LearningContentSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: int
+    title: str
+    cover_image_url: Optional[str] = None
+    provider_name: Optional[str] = None
+    total_score: int
+
 class LearningContentResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: int
@@ -159,4 +169,4 @@ class GoalInfo(BaseModel):
 class StudyDashboardResponse(BaseModel):
     goal: GoalInfo
     ongoing: List[OngoingContent]
-    recommended: List[LearningContentResponse]
+    recommended: List[LearningContentSummary]  # ← ここを LearningContentResponse から変更
